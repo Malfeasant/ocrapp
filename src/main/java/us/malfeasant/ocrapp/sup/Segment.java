@@ -49,7 +49,8 @@ public class Segment {
 		var pts = buf.getInt() / 90;
 		var dts = buf.getInt() / 90;
 		var type = SegmentType.getTypeFor(buf.get());
-		var size = buf.getShort();
+		int size = buf.getShort();
+		if (size < 0) size += 0x10000;	// stupid java and its lack of unsigned types...
 		var offset = buf.position();
 		buf.position(offset + size);	// set new position for next segment
 		return new Segment(pts, dts, type, buf.slice(offset, size));
