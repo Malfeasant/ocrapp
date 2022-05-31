@@ -19,8 +19,10 @@ public class ReadSUP {
 	 * Only constructor- must always pass a file
 	 * @param f .sup file to import
 	 * @throws IOException 
+	 * @throws UnknownSegmentTypeException 
+	 * @throws BadMagicException 
 	 */
-	public ReadSUP(Path f) throws IOException {
+	public ReadSUP(Path f) throws IOException, BadMagicException, UnknownSegmentTypeException {
 		if (Files.isReadable(f)) {
 			var fc = FileChannel.open(f);
     		buffer = fc.map(MapMode.READ_ONLY, 0, fc.size());

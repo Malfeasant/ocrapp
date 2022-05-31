@@ -1,8 +1,6 @@
 package us.malfeasant.ocrapp;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
@@ -18,7 +16,9 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import us.malfeasant.ocrapp.sup.BadMagicException;
 import us.malfeasant.ocrapp.sup.ReadSUP;
+import us.malfeasant.ocrapp.sup.UnknownSegmentTypeException;
 
 public class App extends Application {
 	private Path inputFile;	// Subtitle file that OCR is being performed on.  If no file has been imported yet, can be null.
@@ -35,7 +35,7 @@ public class App extends Application {
     	var fileMenu = new Menu("File", null, importItem, new SeparatorMenuItem(), exitItem);
     	var mBar = new MenuBar(fileMenu);
     	var pane = new BorderPane(null, mBar, null, null, null);	// TODO more nodes...
-        importItem.setOnAction(e -> {
+        importItem.setOnAction(event -> {
         	if (modified && inputFile != null) {
         		var alert = new Alert(AlertType.CONFIRMATION, "Current file will be lost- proceed?");
         		var response = alert.showAndWait();
@@ -50,9 +50,12 @@ public class App extends Application {
         	if (chosenFile != null) {	// could be null if dialog cancelled...
 				try {
 					importFile(chosenFile.toPath());
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (IOException e) {
+					// TODO Dialog explaining problem opening/reading file
+					// Cleanup UI
+				} catch (DecodeException e) {
+					// TODO Dialog explaining problem decoding file
+					// Cleanup UI
 				}
         	}
         });
@@ -65,16 +68,22 @@ public class App extends Application {
         launch(args);
     }
     
-    private void importFile(Path f) throws IOException {	// f should not be null
-    	inputFile = f;
+    private void importFile(Path f) throws IOException, BadMagicException {	// f should not be null
     	var name = f.getFileName().toString();
     	var lastDot = name.lastIndexOf(".");
     	var ext = name.substring(lastDot + 1);
     	if (ext.equals("sup")) {
     		System.out.println("Got a .sup file!");
-    		var sup = new ReadSUP(f);
+    		ReadSUP sup;
+    		try {
+				sup = new ReadSUP(f);
+			} catch (UnknownSegmentTypeException e) {
+				// TODO Could potentially recover from this- maybe pop up dialog asking if user wants to continue?
+				System.out.println(e.getLocalizedMessage());
+			}
     	} else if (ext.equals("idx")) {
     		System.out.println("Got a .idx file!");
     	}
+    	inputFile = f;
     }
 }

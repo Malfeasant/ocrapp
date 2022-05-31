@@ -6,12 +6,8 @@ public class Segment {
 	private static final int MAGIC = 0x5047;
 	
 	enum SegmentType {
-		PDS(0x14), ODS(0x15), PCS(0x16), WDS(0x17), END(0x80);
-		final int id;
-		SegmentType(int t) {
-			id = t;
-		}
-		static SegmentType getTypeFor(int id) {
+		PDS, ODS, PCS, WDS, END;
+		static SegmentType getTypeFor(int id) throws UnknownSegmentTypeException {
 			switch (id) {
 			case 0x14:
 				return PDS;
@@ -21,10 +17,10 @@ public class Segment {
 				return PCS;
 			case 0x17:
 				return WDS;
-			case -0x80:	// funky byte stuff
+			case 0x80:
 				return END;
 			default:
-				throw new IllegalArgumentException("Invalid Segment Type: " + id);	// TODO: be more specific?
+				throw new UnknownSegmentTypeException("Invalid Segment Type: " + id);	// TODO: be more specific?
 			}
 		}
 	}
@@ -43,14 +39,14 @@ public class Segment {
 		System.out.println("New Segment: type = " + type + "\tsize = " + d.limit());
 	}
 	
-	public static Segment getSegmentFrom(ByteBuffer buf) {
+	public static Segment getSegmentFrom(ByteBuffer buf) throws BadMagicException, UnknownSegmentTypeException {
 		var magic = buf.getShort();
-		if (magic != MAGIC) throw new Error("Bad magic number: " + magic);
+		if (magic != MAGIC) throw new BadMagicException(
+				"Bad magic number: " + Integer.toHexString(magic) + " at position " + buf.position());
 		var pts = buf.getInt() / 90;
 		var dts = buf.getInt() / 90;
-		var type = SegmentType.getTypeFor(buf.get());
-		int size = buf.getShort();
-		if (size < 0) size += 0x10000;	// stupid java and its lack of unsigned types...
+		var type = SegmentType.getTypeFor(Byte.toUnsignedInt(buf.get()));
+		var size = Short.toUnsignedInt(buf.getShort());	// otherwise we sometimes get negative sizes...
 		var offset = buf.position();
 		buf.position(offset + size);	// set new position for next segment
 		return new Segment(pts, dts, type, buf.slice(offset, size));
