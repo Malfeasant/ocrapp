@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import us.malfeasant.ocrapp.DecodeException;
 
 public class ReadSUP {
 	
@@ -22,7 +24,7 @@ public class ReadSUP {
 	 * @throws UnknownSegmentTypeException 
 	 * @throws BadMagicException 
 	 */
-	public ReadSUP(Path f) throws IOException, BadMagicException, UnknownSegmentTypeException {
+	public ReadSUP(Path f) throws IOException, DecodeException {
 		if (Files.isReadable(f)) {
 			var fc = FileChannel.open(f);
     		buffer = fc.map(MapMode.READ_ONLY, 0, fc.size());
@@ -32,7 +34,7 @@ public class ReadSUP {
     			offset = buffer.position();
     		}
 		} else {
-			throw new Error("Problem!");	// TODO: be more specific
+			throw new AccessDeniedException("File " + f + " is not readable.");
 		}
 	}
 }

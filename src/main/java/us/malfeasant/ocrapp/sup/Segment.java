@@ -9,18 +9,22 @@ public class Segment {
 		PDS, ODS, PCS, WDS, END;
 		static SegmentType getTypeFor(int id) throws UnknownSegmentTypeException {
 			switch (id) {
-			case 0x14:
+			case 0x14 -> {
 				return PDS;
-			case 0x15:
+				}
+			case 0x15 -> {
 				return ODS;
-			case 0x16:
+				}
+			case 0x16 -> {
 				return PCS;
-			case 0x17:
+				}
+			case 0x17 -> {
 				return WDS;
-			case 0x80:
+				}
+			case 0x80 -> {
 				return END;
-			default:
-				throw new UnknownSegmentTypeException("Invalid Segment Type: " + id);	// TODO: be more specific?
+				}
+			default -> throw new UnknownSegmentTypeException("Invalid Segment Type: " + id);	// TODO: be more specific?
 			}
 		}
 	}
