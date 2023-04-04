@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
+import org.tinylog.Logger;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -16,7 +20,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import us.malfeasant.ocrapp.sup.BadMagicException;
 import us.malfeasant.ocrapp.sup.ReadSUP;
 import us.malfeasant.ocrapp.sup.UnknownSegmentTypeException;
 
@@ -36,6 +39,8 @@ public class App extends Application {
 		var fileMenu = new Menu("File", null, importItem, new SeparatorMenuItem(), exitItem);
 		var mBar = new MenuBar(fileMenu);
 		var pane = new BorderPane(null, mBar, null, null, null);	// TODO more nodes...
+		pane.setOnDragOver(e -> handleDragOver(e));
+		pane.setOnDragDropped(e -> handleDrop(e));
 		importItem.setOnAction(event -> {
 			if (modified && inputFile != null) {
 				var alert = new Alert(AlertType.CONFIRMATION, "Current file will be lost- proceed?");
@@ -74,18 +79,38 @@ public class App extends Application {
 		var lastDot = name.lastIndexOf(".");
 		var ext = name.substring(lastDot + 1);
 		if (ext.equals("sup")) {
-			System.out.println("Got a .sup file!");
+			Logger.info("Got a .sup file!");
 			ReadSUP sup;
 			try {
 				sup = new ReadSUP(f);
 			} catch (UnknownSegmentTypeException e) {
 				// TODO Could potentially recover from this- maybe pop up dialog asking if user wants to continue?
-				// On second thought, no- since it's backed by an enum type, anything unknown has to be an error that stops processing.
+				// On second thought, no- since it's backed by an enum type,
+				// anything unknown has to be an error that stops processing.
 				throw e;
 			}
-		} else if (ext.equals("idx")) {
-			System.out.println("Got a .idx file!");
+		} else if (ext.equals("idx") || ext.equals("sub")) {
+			Logger.info("Got a .idx/.sub file!");
+			// find & handle both .idx and .sub file
 		}
 		inputFile = f;
+	}
+
+	private void handleDragOver(DragEvent event) {
+		var dragBoard = event.getDragboard();
+		if (dragBoard.hasFiles() && dragBoard.getFiles().size() == 1) {
+			// only want single files, no multiples
+			event.acceptTransferModes(TransferMode.ANY);
+			event.consume();
+		}
+	}
+
+	private void handleDrop(DragEvent event) {
+		var dragBoard = event.getDragboard();
+		if (dragBoard.hasFiles()) {
+			event.setDropCompleted(true);
+			event.consume();
+			Logger.info("Files dropped: " + dragBoard.getFiles());
+		}
 	}
 }
