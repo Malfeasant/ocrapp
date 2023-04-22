@@ -51,7 +51,7 @@ public class App extends Application {
 			}
 			var chooser = new FileChooser();
 			chooser.setTitle("Import graphical subtitles");
-			chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Subtitle files", "*.sup", "*.idx"));
+			chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Subtitle files", "*.sup", "*.idx", "*.sub"));
 			var chosenFile = chooser.showOpenDialog(stage);
 			if (chosenFile != null) {	// could be null if dialog cancelled...
 				try {
@@ -84,14 +84,17 @@ public class App extends Application {
 			try {
 				sup = new ReadSUP(f);
 			} catch (UnknownSegmentTypeException e) {
-				// TODO Could potentially recover from this- maybe pop up dialog asking if user wants to continue?
+				// TODO Could potentially recover from this- maybe pop up dialog
+				// asking if user wants to continue?
 				// On second thought, no- since it's backed by an enum type,
 				// anything unknown has to be an error that stops processing.
 				throw e;
 			}
 		} else if (ext.equals("idx") || ext.equals("sub")) {
+			// We allow the user to pick either .idx or .sub, but in reality, only the .sub
+			// is needed- if .idx selected, we just use it to find the .sub file.
 			Logger.info("Got a .idx/.sub file!");
-			// find & handle both .idx and .sub file
+			// find & handle .sub file
 		}
 		inputFile = f;
 	}
