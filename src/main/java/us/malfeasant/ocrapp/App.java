@@ -92,6 +92,7 @@ public class App extends Application {
 		} else if (ext.equals("idx") || ext.equals("sub")) {
 			// We allow the user to pick either .idx or .sub, but in reality, only the .sub
 			// is needed- if .idx selected, we just use it to find the .sub file.
+			// TODO Maybe identify the file type by reading it rather than by extension?
 			Logger.info("Got a .idx/.sub file!");
 			// find & handle .sub file
 		}
