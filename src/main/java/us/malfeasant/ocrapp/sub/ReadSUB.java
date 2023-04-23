@@ -1,8 +1,11 @@
 package us.malfeasant.ocrapp.sub;
 
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Reads in a .sub file- interesting to note, .idx file is generated from .sub, so not needed.
@@ -12,7 +15,12 @@ import java.nio.file.Path;
 public class ReadSUB {
     public ReadSUB(Path f) throws AccessDeniedException {
         if (Files.isReadable(f)) {
-            
+            try {
+                var fc = FileChannel.open(f, StandardOpenOption.READ);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         } else {
 			throw new AccessDeniedException("File " + f + " is not readable.");
         }
