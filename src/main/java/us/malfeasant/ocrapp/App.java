@@ -51,18 +51,12 @@ public class App extends Application {
 			}
 			var chooser = new FileChooser();
 			chooser.setTitle("Import graphical subtitles");
-			chooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Subtitle files", "*.sup", "*.idx", "*.sub"));
+			chooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("Subtitle files",
+				"*.sup", "*.idx", "*.sub"));
 			var chosenFile = chooser.showOpenDialog(stage);
 			if (chosenFile != null) {	// could be null if dialog cancelled...
-				try {
-					importFile(chosenFile.toPath());
-				} catch (IOException e) {
-					// TODO Dialog explaining problem opening/reading file
-					// Cleanup UI
-				} catch (DecodeException e) {
-					// TODO Dialog explaining problem decoding file
-					// Cleanup UI
-				}
+				importFile(chosenFile.toPath());
 			}
 		});
 		Scene scene = new Scene(pane, winWidth, winHeight);
@@ -74,7 +68,7 @@ public class App extends Application {
 		launch(args);
 	}
 
-	private void importFile(Path f) throws IOException, DecodeException {	// f should not be null
+	private void importFile(Path f) {	// f should not be null
 		var name = f.getFileName().toString();
 		var lastDot = name.lastIndexOf(".");
 		var ext = name.substring(lastDot + 1);
@@ -88,7 +82,12 @@ public class App extends Application {
 				// asking if user wants to continue?
 				// On second thought, no- since it's backed by an enum type,
 				// anything unknown has to be an error that stops processing.
-				throw e;
+				// TODO alert user, reset ui 
+			} catch (IOException e) {
+				// TODO alert user, reset ui
+				e.printStackTrace();
+			} catch (DecodeException e) {
+				// TODO alert user, reset ui
 			}
 		} else if (ext.equals("idx") || ext.equals("sub")) {
 			// We allow the user to pick either .idx or .sub, but in reality, only the .sub
@@ -114,6 +113,10 @@ public class App extends Application {
 			event.setDropCompleted(true);
 			event.consume();
 			Logger.info("Files dropped: " + dragBoard.getFiles());
+			if (modified) {
+				// TODO offer to save output, cancel -> early return
+			}
+			importFile(dragBoard.getFiles().get(0).toPath());
 		}
 	}
 }
