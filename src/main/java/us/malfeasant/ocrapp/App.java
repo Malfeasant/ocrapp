@@ -72,6 +72,12 @@ public class App extends Application {
 		var name = f.getFileName().toString();
 		var lastDot = name.lastIndexOf(".");
 		var ext = name.substring(lastDot + 1);
+		try {
+			ReadFile.getReaderFor(f);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (ext.equals("sup")) {
 			Logger.info("Got a .sup file!");
 			ReadSUP sup;

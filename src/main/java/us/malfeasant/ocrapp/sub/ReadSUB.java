@@ -1,6 +1,7 @@
 package us.malfeasant.ocrapp.sub;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ public class ReadSUB {
         if (Files.isReadable(f)) {
             try {
                 var fc = FileChannel.open(f, StandardOpenOption.READ);
+                ByteBuffer packHeader = ByteBuffer.allocate(0);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
