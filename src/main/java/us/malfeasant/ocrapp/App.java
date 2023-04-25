@@ -77,8 +77,11 @@ public class App extends Application {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (DecodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		if (ext.equals("sup")) {
+/*		if (ext.equals("sup")) {
 			Logger.info("Got a .sup file!");
 			ReadSUP sup;
 			try {
@@ -101,7 +104,7 @@ public class App extends Application {
 			// TODO Maybe identify the file type by reading it rather than by extension?
 			Logger.info("Got a .idx/.sub file!");
 			// find & handle .sub file
-		}
+		}*/
 		inputFile = f;
 	}
 
