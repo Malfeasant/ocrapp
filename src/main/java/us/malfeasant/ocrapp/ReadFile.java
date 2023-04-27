@@ -47,8 +47,9 @@ public abstract class ReadFile {
             } else if (buf.getShort(0) == 0x5047) {
                 Logger.debug("Looks like a SUP file (Bluray)");
                 return new ReadSUP(channel);
-            }
+            } // TODO any other file types?  .mkv, .vob, .iso?
         }
-        return null;    // TODO placeholder
+        // If file type hasn't been deduced by here, throw an exception
+        throw new UnknownFileTypeException("Could not deduce type of file " + filePath);
     }
 }
