@@ -17,8 +17,8 @@ public class ReadSUP extends ReadFile {
 	
 	/**
 	 * Only constructor- not meant to be called directly, but inheritance is hard...
-	 * called by static factory method in ReadFile with already open
-	 * and readable FileChannel
+	 * called by static factory method in ReadFile with already open and readable FileChannel
+	 * Reference: https://blog.thescorpius.com/index.php/2017/07/15/presentation-graphic-stream-sup-files-bluray-subtitle-format/
 	 * @param fc
 	 * @throws IOException 
 	 */
