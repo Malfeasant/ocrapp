@@ -27,7 +27,7 @@ public class App extends Application {
 	// If no file has been imported yet, can be null.
 	private Path outputFile;	// Text file of OCR results- can be null if hasn't been saved yet.
 	// TODO replace Path with something more specific to text file writing...
-	private boolean modified = true;	// new file is by definition not modified	TODO: true is only for debugging...
+	private boolean modified = true;	// TODO: true is only for debugging...
 
 	public void start(Stage stage) {
 		var prefs = Preferences.userNodeForPackage(getClass());
@@ -69,11 +69,12 @@ public class App extends Application {
 			var alert = new Alert(AlertType.CONFIRMATION,
 				"Unsaved output will be lost- proceed?");
 			alert.showAndWait().ifPresent(bt -> {
+				// If user clicks ok, we can discard the file(s)
 				modified = !bt.equals(ButtonType.OK);
 				Logger.debug("{} clicked.", bt);
 			});
 		}
-		Logger.debug("Returning {}.", !modified);
+		Logger.debug("checkDiscard() Returning {}.", !modified);
 		return !modified;
 	}
 	public static void main(String[] args) {
@@ -81,16 +82,14 @@ public class App extends Application {
 	}
 
 	private void importFile(Path f) {	// f should not be null
-		if (checkDiscard()) {
-			try {
-				inputFile = new SubtitleFile(f);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DecodeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			inputFile = new SubtitleFile(f);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DecodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -109,10 +108,9 @@ public class App extends Application {
 			event.setDropCompleted(true);
 			event.consume();
 			Logger.info("Files dropped: " + dragBoard.getFiles());
-			if (modified) {
-				// TODO offer to save output, cancel -> early return
+			if (checkDiscard()) {
+				importFile(dragBoard.getFiles().get(0).toPath());
 			}
-			importFile(dragBoard.getFiles().get(0).toPath());
 		}
 	}
 }

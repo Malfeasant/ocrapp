@@ -1,14 +1,16 @@
 package us.malfeasant.ocrapp.sub;
 
-import java.util.Iterator;
-
 import us.malfeasant.ocrapp.SubPicture;
+import us.malfeasant.ocrapp.SubtitleFile;
 
 /**
  * Reference: https://dvd.sourceforge.net/dvdinfo/index.html
  */
-public class ReadSUB implements Iterator<SubPicture> {
-
+public class ReadSUB extends SubtitleFile.FileReader {
+    public ReadSUB(SubtitleFile file) {
+        super(file);
+    }
+    
     @Override
     public boolean hasNext() {
         // TODO Auto-generated method stub

@@ -1,13 +1,15 @@
 package us.malfeasant.ocrapp.sup;
 
-import java.util.Iterator;
-
 import us.malfeasant.ocrapp.SubPicture;
+import us.malfeasant.ocrapp.SubtitleFile;
 
 /**
  * Reference: https://blog.thescorpius.com/index.php/2017/07/15/presentation-graphic-stream-sup-files-bluray-subtitle-format/
  */
-public class ReadSUP implements Iterator<SubPicture> {
+public class ReadSUP extends SubtitleFile.FileReader {
+	public ReadSUP(SubtitleFile file) {
+		super(file);
+	}
 
 	@Override
 	public boolean hasNext() {

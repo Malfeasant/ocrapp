@@ -10,6 +10,9 @@ import java.util.Iterator;
 
 import org.tinylog.Logger;
 
+import us.malfeasant.ocrapp.sub.ReadSUB;
+import us.malfeasant.ocrapp.sup.ReadSUP;
+
 /**
  * Represents a subtitle file- opens it for reading, but delegates the interpretation
  * of the file to a separate class.  Only knows enough about each format to pick the
@@ -48,16 +51,39 @@ public class SubtitleFile implements Iterable<SubPicture> {
                 // If file type hasn't been deduced by here, throw an exception
                 throw new UnknownFileTypeException("Could not deduce type of file " + filePath);
             }
-        } else throw new IOException("Unknown problem opening file.");
+        } else {
+            Logger.error("File {} is not readable, or maybe not a file?", filePath);
+            throw new IOException("Unknown problem opening file.");
+        }
     }
 
-    private enum FileType {
-        SUB, SUP;   // TODO any other file types?  .mkv, .vob, .iso?
+    /**
+     * This will be extended by file types
+     */
+    public static abstract class FileReader implements Iterator<SubPicture> {
+        protected final SubtitleFile file;
+        protected FileReader(SubtitleFile file) {
+            this.file = file;
+        }
+    }
+    public enum FileType {
+        SUB {
+            @Override
+            protected Iterator<SubPicture> iterOver(SubtitleFile file) {
+                return new ReadSUB(file);
+            }
+        },
+        SUP {
+            @Override
+            protected Iterator<SubPicture> iterOver(SubtitleFile file) {
+                return new ReadSUP(file);
+            }
+        };   // TODO any other file types?  .mkv, .vob, .iso?
+        protected abstract Iterator<SubPicture> iterOver(SubtitleFile file);
     }
 
     @Override
     public Iterator<SubPicture> iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+        return type.iterOver(this);
     }
 }

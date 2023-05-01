@@ -13,6 +13,6 @@ public class SubPicture {
     private Duration hideTime;  // timestamp to stop display
     private Rectangle2D totalBounds;    // size of the full source image
     private Rectangle2D croppedBounds;  // size of just the non-transparent part of the image
-    private WritableImage image;
-    private String text;
+    private WritableImage image;    // subtitle decoded into a displayable image
+    private String text;    // Text of subtitle
 }
