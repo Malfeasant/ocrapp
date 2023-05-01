@@ -7,16 +7,21 @@ import java.util.prefs.Preferences;
 import org.tinylog.Logger;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -29,16 +34,30 @@ public class App extends Application {
 	// TODO replace Path with something more specific to text file writing...
 	private boolean modified = true;	// TODO: true is only for debugging...
 
+	private ObservableList<SubPicture> subList;	// Listview of all subtitles- display as timestamps
+	private ImageView subImage;	// where decoded image of selected subtitle is displayed
+	private TextArea subText;	// where text of the selected subtitle is displayed
+
 	public void start(Stage stage) {
 		var prefs = Preferences.userNodeForPackage(getClass());
-		int winWidth = prefs.getInt("WinWidth", 640);
-		int winHeight = prefs.getInt("WinHeight", 480);
+		//int winWidth = prefs.getInt("WinWidth", 640);
+		//int winHeight = prefs.getInt("WinHeight", 480);
+
+		subList = FXCollections.observableArrayList();
+		var listView = new ListView<>(subList);
+
+		subText = new TextArea();
+
+		subImage = new ImageView();
+		subImage.setFitWidth(320);
+		subImage.setFitHeight(240);
+		subImage.setPreserveRatio(true);
 
 		var importItem = new MenuItem("Import...");
 		var exitItem = new MenuItem("Exit");
 		var fileMenu = new Menu("File", null, importItem, new SeparatorMenuItem(), exitItem);
 		var mBar = new MenuBar(fileMenu);
-		var pane = new BorderPane(null, mBar, null, null, null);	// TODO more nodes...
+		var pane = new BorderPane(subImage, mBar, subText, null, listView);	// TODO more nodes...
 		pane.setOnDragOver(e -> handleDragOver(e));
 		pane.setOnDragDropped(e -> handleDrop(e));
 		importItem.setOnAction(event -> {
@@ -55,8 +74,9 @@ public class App extends Application {
 				}
 			}
 		});
-		Scene scene = new Scene(pane, winWidth, winHeight);
+		Scene scene = new Scene(pane);//, winWidth, winHeight);
 		stage.setScene(scene);
+		stage.sizeToScene();
 		stage.show();
 	}
 
