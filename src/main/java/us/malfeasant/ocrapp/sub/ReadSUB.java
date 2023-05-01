@@ -1,16 +1,23 @@
 package us.malfeasant.ocrapp.sub;
 
-import java.nio.channels.FileChannel;
+import java.util.Iterator;
 
-import us.malfeasant.ocrapp.ReadFile;
+import us.malfeasant.ocrapp.SubPicture;
 
 /**
- * Reads in a .sub file- interesting to note, .idx file is generated from .sub, so not needed.
- * Seems to be more for convenience of reading & parsing by players- .sub contains everything .idx does.
  * Reference: https://dvd.sourceforge.net/dvdinfo/index.html
  */
-public class ReadSUB extends ReadFile {
-    public ReadSUB(FileChannel fc) {
-        super(fc);
+public class ReadSUB implements Iterator<SubPicture> {
+
+    @Override
+    public boolean hasNext() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'hasNext'");
+    }
+
+    @Override
+    public SubPicture next() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'next'");
     }
 }
