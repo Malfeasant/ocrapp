@@ -15,4 +15,10 @@ public class SubPicture {
     private Rectangle2D croppedBounds;  // size of just the non-transparent part of the image
     private WritableImage image;    // subtitle decoded into a displayable image
     private String text;    // Text of subtitle
+
+    public String prettyPrint() {
+        String show = showTime == null ? "--" : showTime.toString();
+        String hide = hideTime == null ? "--" : hideTime.toString();
+        return show + " -> " + hide;
+    }
 }

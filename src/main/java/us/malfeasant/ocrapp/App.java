@@ -2,16 +2,18 @@ package us.malfeasant.ocrapp;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.prefs.Preferences;
 
 import org.tinylog.Logger;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
@@ -20,6 +22,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -27,31 +30,50 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class App extends Application {
-	
-	private SubtitleFile inputFile;	// Subtitle file that OCR is being performed on.
+	private final ReadOnlyStringWrapper fileName = new ReadOnlyStringWrapper();
+	// TODO bind fileName to inputFile somehow...
+	private SubtitleFile inputFile;
+	// Subtitle file that OCR is being performed on.
 	// If no file has been imported yet, can be null.
 	private Path outputFile;	// Text file of OCR results- can be null if hasn't been saved yet.
 	// TODO replace Path with something more specific to text file writing...
 	private boolean modified = true;	// TODO: true is only for debugging...
 
-	private ObservableList<SubPicture> subList;	// Listview of all subtitles- display as timestamps
-	private ImageView subImage;	// where decoded image of selected subtitle is displayed
-	private TextArea subText;	// where text of the selected subtitle is displayed
+	private final ObservableList<SubPicture> subList = FXCollections.observableArrayList();
+	private final ListView<SubPicture> listView = new ListView<>(subList);
+	// Listview of all subtitles- display as timestamps
+	private final ImageView subImage = new ImageView();
+	// where decoded image of selected subtitle is displayed
+	private final TextArea subText = new TextArea();
+	// where text of the selected subtitle is displayed
 
 	public void start(Stage stage) {
-		var prefs = Preferences.userNodeForPackage(getClass());
-		//int winWidth = prefs.getInt("WinWidth", 640);
-		//int winHeight = prefs.getInt("WinHeight", 480);
+		//var prefs = Preferences.userNodeForPackage(getClass());
+		// removing this until I have a use for it...
+		stage.titleProperty().bind(Bindings.concat(
+			"OCRApp", 
+			Bindings.when(fileName.isNotEmpty()).then(
+				Bindings.concat(" - ", fileName.getReadOnlyProperty())
+			).otherwise("")
+			// Is there a better way to do this that doesn't require otherwise()?
+			// Meh, it works.
+		));
 
-		subList = FXCollections.observableArrayList();
-		var listView = new ListView<>(subList);
-
-		subText = new TextArea();
-
-		subImage = new ImageView();
 		subImage.setFitWidth(320);
 		subImage.setFitHeight(240);
 		subImage.setPreserveRatio(true);
+
+		listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		listView.setCellFactory(lv -> {
+			return new ListCell<>() {
+				@Override
+				protected void updateItem(SubPicture item, boolean empty) {
+					super.updateItem(item, empty);
+
+					setText(item == null ? "" : item.prettyPrint());
+				}
+			};
+		});
 
 		var importItem = new MenuItem("Import...");
 		var exitItem = new MenuItem("Exit");
@@ -74,7 +96,7 @@ public class App extends Application {
 				}
 			}
 		});
-		Scene scene = new Scene(pane);//, winWidth, winHeight);
+		Scene scene = new Scene(pane);
 		stage.setScene(scene);
 		stage.sizeToScene();
 		stage.show();
@@ -94,16 +116,19 @@ public class App extends Application {
 				Logger.debug("{} clicked.", bt);
 			});
 		}
+		if (!modified) {	// need to check again because it might have changed
+			subList.clear();
+			inputFile = null;
+			fileName.set("");
+		}
 		Logger.debug("checkDiscard() Returning {}.", !modified);
 		return !modified;
-	}
-	public static void main(String[] args) {
-		launch(args);
 	}
 
 	private void importFile(Path f) {	// f should not be null
 		try {
 			inputFile = new SubtitleFile(f);
+			fileName.set(f.toAbsolutePath().toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -132,5 +157,9 @@ public class App extends Application {
 				importFile(dragBoard.getFiles().get(0).toPath());
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		launch(args);
 	}
 }
